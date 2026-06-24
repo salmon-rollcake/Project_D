@@ -19,14 +19,21 @@ namespace MyFPS
         float cameraTargetPitch = 0f; // 카메라 회전 연산값 (위, 아래)
         float rotationVelocity = 0f; // 카메라 회전 속도 (좌, 우)
 
-        float topClamp = 45f; // 카메라 위 최대값
-        float bottomClamp = -90f; // 카메라 아래 최대값
+        [SerializeField] float topClamp = 45f; // 카메라 위 최대값
+        [SerializeField] float bottomClamp = -90f; // 카메라 아래 최대값
         #endregion
 
         #region Unity Event Methods
         private void Awake()
         {
             input = GetComponent<CharacterInput>();
+        }
+
+        private void Start()
+        {
+            // 마우스 커서 초기화
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = true;
         }
 
         private void LateUpdate()
@@ -50,7 +57,8 @@ namespace MyFPS
 
             // 위 / 아래 (카메라 회전)
             cameraTargetPitch -= input.Look.y * rotateSpeed * Time.deltaTime * sensivity;
-            cameraTrans.localRotation = Quaternion.Euler(cameraTargetPitch, bottomClamp, topClamp);
+            cameraTargetPitch = ClampAngle(cameraTargetPitch, bottomClamp, topClamp);
+            cameraTrans.localRotation = Quaternion.Euler(cameraTargetPitch, 0f, 0f);
         }
         #endregion
 
@@ -58,7 +66,7 @@ namespace MyFPS
         float ClampAngle(float angle, float min, float max)
         {
             if (angle < -360f) angle += 360f;
-            if (angle > -360f) angle -= 360f;
+            if (angle > 360f) angle -= 360f;
             return Mathf.Clamp(angle, min, max);
         }
         #endregion
