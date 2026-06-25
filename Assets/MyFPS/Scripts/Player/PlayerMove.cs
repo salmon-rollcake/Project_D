@@ -55,13 +55,11 @@ namespace MyFPS
         void CheckGrounded()
         {
             Vector3 checkPos = new Vector3(transform.position.x, transform.position.y - groundOffset, transform.position.z);
-            Physics.CheckSphere(checkPos, groundRadius, groundLayers, QueryTriggerInteraction.Ignore);
+            isGrounded = Physics.CheckSphere(checkPos, groundRadius, groundLayers, QueryTriggerInteraction.Ignore);
         }
         
         void GravitySetup()
         {
-            verticalVelocity += gravity * Time.deltaTime;
-
             if (isGrounded)
             {
                 // 지면에 있을 때 벨로시티 값을 고정
@@ -87,6 +85,8 @@ namespace MyFPS
                 input.IsJump = false;
                 jumpCD = 0.1f;
             }
+
+            verticalVelocity += gravity * Time.deltaTime;
         }
 
         void Move()

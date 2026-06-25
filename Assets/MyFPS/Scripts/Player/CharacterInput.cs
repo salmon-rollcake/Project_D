@@ -11,7 +11,7 @@ namespace MyFPS
 
         // 이동 입력 값 - WASD
         Vector2 move;
-        bool isRun;
+        [SerializeField] bool isRun;
 
         // 마우스 회전
         Vector2 look;
@@ -84,7 +84,11 @@ namespace MyFPS
             if (inputActions.Player.Sprint.WasPressedThisFrame())
             {
                 isRun = true;
-            } else isRun = false;
+            }
+            else if (inputActions.Player.Sprint.WasReleasedThisFrame())
+            {
+                isRun = false;
+            }
         }
         #endregion
     }
