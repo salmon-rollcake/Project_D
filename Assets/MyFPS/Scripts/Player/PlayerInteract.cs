@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,6 +18,7 @@ namespace MyFPS
         [Header("UI 설정")]
         // 유니티 에디터에서 상호작용 텍스트 오브젝트(또는 Canvas 패널)를 드래그앤드롭할 변수
         [SerializeField] private GameObject interactionUI;
+        [SerializeField] GameObject gunInteractUI;
 
         void Start()
         {
@@ -38,16 +40,14 @@ namespace MyFPS
 
             Debug.DrawRay(ray.origin, ray.direction * interactDistance, Color.red);
 
-            // 레이캐스트 발사
+            // 1. 문 레이어 감지
             if (Physics.Raycast(ray, out hit, interactDistance, doorLayer))
             {
-                // [추가] 레이가 오브젝트에 맞았으므로 UI를 활성화합니다.
                 SetInteractionUIActive(true);
+                ActiveGunUI(false); // 다른 UI는 꺼줌
 
-                // E키 입력 처리
                 if (Input.GetKeyDown(KeyCode.E))
                 {
-                    // 이전 턴에서 해결한 부모 오브젝트 체크 방식 적용
                     DoorCellOpen door = hit.collider.GetComponentInParent<DoorCellOpen>();
                     if (door != null)
                     {
@@ -55,26 +55,28 @@ namespace MyFPS
                     }
                 }
             }
+            // 2. 총 레이어 감지 (문이 아닐 때)
             else if (Physics.Raycast(ray, out hit, interactDistance, gunLayer))
             {
-                // [추가] 레이가 오브젝트에 맞았으므로 UI를 활성화합니다.
-                SetInteractionUIActive(true);
+                SetInteractionUIActive(false);
+                ActiveGunUI(true); // 총 줍기 UI 활성화
 
-                // E키 입력 처리
                 if (Input.GetKeyDown(KeyCode.E))
                 {
-                    // 이전 턴에서 해결한 부모 오브젝트 체크 방식 적용
                     PickupGun gun = hit.collider.GetComponentInParent<PickupGun>();
                     if (gun != null)
                     {
                         gun.GunPickup();
+                        // 줍자마자 바로 UI를 끄기 (오브젝트가 파괴되면서 다음 프레임에 어차피 꺼지지만, 명시적으로 꺼줍니다)
+                        ActiveGunUI(false);
                     }
                 }
             }
+            // 3. 아무것도 감지되지 않음
             else
             {
-                // [추가] 레이가 아무것도 맞추지 못했거나 거리가 멀어졌으므로 UI를 비활성화합니다.
                 SetInteractionUIActive(false);
+                ActiveGunUI(false);
             }
         }
 
@@ -87,6 +89,18 @@ namespace MyFPS
                 if (interactionUI.activeSelf != isActive)
                 {
                     interactionUI.SetActive(isActive);
+                }
+            }
+        }
+
+        private void ActiveGunUI(bool isActive)
+        {
+            if (gunInteractUI != null)
+            {
+                // 현재 상태와 바꿀 상태가 다를 때만 SetActive를 호출하여 불필요한 연산을 줄입니다.
+                if (gunInteractUI.activeSelf != isActive)
+                {
+                    gunInteractUI.SetActive(isActive);
                 }
             }
         }

@@ -60,6 +60,12 @@ namespace MyFPS
             cameraTargetPitch = ClampAngle(cameraTargetPitch, bottomClamp, topClamp);
             cameraTrans.localRotation = Quaternion.Euler(cameraTargetPitch, 0f, 0f);
         }
+
+        public void SetTargetPitch(float pitch)
+        {
+            cameraTargetPitch = ClampAngle(pitch, bottomClamp, topClamp);
+            cameraTrans.localRotation = Quaternion.Euler(cameraTargetPitch, 0f, 0f);
+        }
         #endregion
 
         #region
