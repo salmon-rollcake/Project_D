@@ -12,8 +12,10 @@ namespace MyFPS
         [Header("제어할 오브젝트")]
         [SerializeField] private GameObject playerObject;        // 플레이어 오브젝트
         [SerializeField] private Animator doorAnimator;          // 문 애니메이터
-        [SerializeField] private string doorOpenParam = "IsOpen";// 문 애니메이터 파라미터
+        [SerializeField] private string doorOpenTrigger = "DoorTrg"; // 문 애니메이터 Trigger 파라미터 이름
         [SerializeField] private GameObject enemyObject;         // 활성화할 적 오브젝트
+        [SerializeField] private AudioClip enemyAppearSound;     // 적 등장 시 재생할 사운드
+        [SerializeField] private AudioSource audioSource;        // 사운드를 재생할 오디오 소스
         [SerializeField] private Transform lookTarget;           // 강제로 바라볼 대상 (문 중앙이나 적 등)
 
         private PlayerInteract playerInteraction;
@@ -57,13 +59,17 @@ namespace MyFPS
             // 2. 문 열기
             if (doorAnimator != null)
             {
-                doorAnimator.SetBool(doorOpenParam, true);
+                doorAnimator.SetTrigger(doorOpenTrigger);
             }
 
-            // 3. 적 활성화
+            // 3. 적 활성화 및 등장 사운드 재생
             if (enemyObject != null)
             {
                 enemyObject.SetActive(true);
+                if (audioSource != null && enemyAppearSound != null)
+                {
+                    audioSource.PlayOneShot(enemyAppearSound);
+                }
             }
 
             // 4. 강제로 문 쪽 바라보기 (부드럽게 회전)

@@ -23,7 +23,7 @@ namespace MyFPS
             gun.SetActive(true);
             arrow.SetActive(false);
             spotLight.SetActive(false);
-            Destroy(desk_gun);
+            desk_gun.SetActive(false);
         }
     }
 }
