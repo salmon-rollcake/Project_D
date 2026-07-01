@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace MyFPS
@@ -13,17 +14,42 @@ namespace MyFPS
         [SerializeField] GameObject arrow;
         [SerializeField] GameObject spotLight;
 
+        [SerializeField] GameObject ammo;
+
+        bool isGunPickedUp = false;
+        bool isAmmoPickedUp = false;
+
+
         private void Awake()
         {
             gun.SetActive(false);
         }
 
-        public void GunPickup()
+        void Update()
         {
-            gun.SetActive(true);
+            if (isGunPickedUp && isAmmoPickedUp)
+            {
+                AllPickup();
+            }
+        }
+
+        void AllPickup()
+        {
             arrow.SetActive(false);
             spotLight.SetActive(false);
+        }
+
+        public void GunPickup()
+        {
+            isGunPickedUp = true;
+            gun.SetActive(true);
             desk_gun.SetActive(false);
+        }
+
+        public void AmmoPickup()
+        {
+            isAmmoPickedUp = true;
+            ammo.SetActive(false);
         }
     }
 }

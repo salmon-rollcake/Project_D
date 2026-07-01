@@ -11,15 +11,19 @@ namespace MyFPS
         [SerializeField] private float interactDistance = 3.0f;
         [SerializeField] private LayerMask doorLayer;
         [SerializeField] private LayerMask gunLayer;
+        [SerializeField] private LayerMask ammoLayer;
 
         [Header("카메라 참조")]
         [SerializeField] private Transform playerCamera;
 
         [Header("UI 설정")]
         // 유니티 에디터에서 상호작용 텍스트 오브젝트(또는 Canvas 패널)를 드래그앤드롭할 변수
-        [SerializeField] private GameObject interactionUI;
+        [SerializeField] GameObject interactionUI;
         [SerializeField] GameObject gunInteractUI;
+        [SerializeField] GameObject ammoInteractUI;
 
+        [SerializeField] GameObject gun;
+        
         void Start()
         {
             if (playerCamera == null)
@@ -72,11 +76,29 @@ namespace MyFPS
                     }
                 }
             }
+            // 3. 탄약 레이어 감지
+            else if (Physics.Raycast(ray, out hit, interactDistance, ammoLayer))
+            {
+                SetInteractionUIActive(false);
+                ActiveAmmoUI(true); // 탄약 줍기 UI 활성화
+
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    PickupGun ammo = hit.collider.GetComponentInParent<PickupGun>();
+                    if (ammo != null)
+                    {
+                        ammo.AmmoPickup();
+                        // 줍자마자 바로 UI를 끄기 (오브젝트가 파괴되면서 다음 프레임에 어차피 꺼지지만, 명시적으로 꺼줍니다)
+                        ActiveAmmoUI(false);
+                    }
+                }
+            }
             // 3. 아무것도 감지되지 않음
             else
             {
                 SetInteractionUIActive(false);
                 ActiveGunUI(false);
+                ActiveAmmoUI(false);
             }
         }
 
@@ -101,6 +123,18 @@ namespace MyFPS
                 if (gunInteractUI.activeSelf != isActive)
                 {
                     gunInteractUI.SetActive(isActive);
+                }
+            }
+        }
+
+        private void ActiveAmmoUI(bool isActive)
+        {
+            if (ammoInteractUI != null)
+            {
+                // 현재 상태와 바꿀 상태가 다를 때만 SetActive를 호출하여 불필요한 연산을 줄입니다.
+                if (ammoInteractUI.activeSelf != isActive)
+                {
+                    ammoInteractUI.SetActive(isActive);
                 }
             }
         }

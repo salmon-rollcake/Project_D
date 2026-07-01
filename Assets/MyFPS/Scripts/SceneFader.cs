@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using UnityEngine.SceneManagement;
+using Unity.VisualScripting;
 
 namespace MyFPS
 {
@@ -11,7 +12,7 @@ namespace MyFPS
     /// </summary>
     public class SceneFader : MonoBehaviour
     {
-        #region Variables        
+        #region Variables
         public Image img;               //페이더 이미지
         public AnimationCurve curve;    //페이드 효과를 위한 커브 값 적용
         public bool isFadeIn = false;    //시작시 페이드 효과를 자동으로 적용할지 여부
@@ -38,6 +39,7 @@ namespace MyFPS
         //페이드 인 효과 : 1초동안 a: 1 -> 0
         IEnumerator FadeIn(float delayTime)
         {
+            img.raycastTarget = true; //페이드 인 동안에는 UI가 클릭되지 않도록 막음
             img.color = new Color(0f, 0f, 0f, 1f);
 
             //딜레이 시간만큼 대기
@@ -56,6 +58,8 @@ namespace MyFPS
 
                 yield return 0;
             }
+
+            img.raycastTarget = false; //페이드 인이 끝나면 UI 클릭 가능
         }
 
         //페이드 아웃 하고 씬 이름으로 다음 씬으로 이동
@@ -73,6 +77,8 @@ namespace MyFPS
         //페이드 아웃 효과 : 1초동안 a: 0 -> 1
         IEnumerator FadeOut(string sceneName)
         {
+            img.raycastTarget = true; //페이드 아웃 동안에는 UI가 클릭되지 않도록 막음
+
             float t = 0f;
             while (t < 1f)
             {
@@ -91,6 +97,7 @@ namespace MyFPS
 
         IEnumerator FadeOut(int buildIndex)
         {
+            img.raycastTarget = true; //페이드 아웃 동안에는 UI가 클릭되지 않도록 막음
             float t = 0f;
             while (t < 1f)
             {

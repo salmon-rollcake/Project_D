@@ -20,6 +20,11 @@ namespace MyFPS
         private float attackTimer = 0f;
         private bool isDead = false;
 
+        [SerializeField] GameObject player; // 플레이어 오브젝트를 에디터에서 연결
+        bool playerFainted; 
+
+        int playerHP;
+
         void Start()
         {
             if (animator == null)
@@ -28,11 +33,16 @@ namespace MyFPS
             }
 
             // 씬에서 Player 태그를 가진 오브젝트를 찾습니다.
-            GameObject player = GameObject.FindGameObjectWithTag("Player");
+            player = GameObject.FindGameObjectWithTag("Player");
+            playerFainted = player.GetComponent<PlayerHealth>().isFainted;
+
             if (player != null)
             {
                 playerTarget = player.transform;
                 playerHealth = player.GetComponent<PlayerHealth>();
+
+                playerHP = player.GetComponent<PlayerHealth>().currentHealth;
+
                 if (playerHealth == null)
                 {
                     Debug.LogWarning("EnemyAI: Player 오브젝트에 PlayerHealth 스크립트가 없습니다.");
@@ -56,18 +66,26 @@ namespace MyFPS
             // 공격 중일 때는 이동이나 다른 판단을 잠시 멈춤
             if (isAttacking) return;
 
-            // 플레이어와의 거리 계산
-            float distanceToPlayer = Vector3.Distance(transform.position, playerTarget.position);
-
-            if (distanceToPlayer > attackRange)
+            if (playerFainted == true)
             {
-                // 공격 범위 밖이면 이동
-                MoveTowardsPlayer();
+                // 플레이어가 기절 상태이면 공격하지 않음
+                return;
             }
             else
             {
-                // 공격 범위 안이면 공격 시도
-                AttemptAttack();
+                // 플레이어와의 거리 계산
+                float distanceToPlayer = Vector3.Distance(transform.position, playerTarget.position);
+
+                if (distanceToPlayer > attackRange)
+                {
+                    // 공격 범위 밖이면 이동
+                    MoveTowardsPlayer();
+                }
+                else
+                {
+                    // 공격 범위 안이면 공격 시도
+                    AttemptAttack();
+                }
             }
         }
 

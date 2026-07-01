@@ -81,7 +81,7 @@ namespace MyFPS
             actionUI.SetActive(true);
         }
 
-        private void SetPlayerControl(bool isEnable)
+        public void SetPlayerControl(bool isEnable)
         {
             if (playerInteraction != null)
             {

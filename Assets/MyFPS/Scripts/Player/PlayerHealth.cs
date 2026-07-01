@@ -7,8 +7,8 @@ namespace MyFPS
     public class PlayerHealth : MonoBehaviour
     {
         [Header("능력치 설정")]
-        [SerializeField] private int maxHealth = 20;     // 최대 체력
-        private int currentHealth;
+        public int maxHealth = 20;     // 최대 체력
+        public int currentHealth;
 
         [Header("피격 효과 UI")]
         [SerializeField] private Image hitEffectImage;   // 피격 시 활성화할 이미지 (예: 빨간 테두리)
@@ -18,7 +18,14 @@ namespace MyFPS
         [SerializeField] private AudioClip[] hitVoiceClips; // 준비해 둔 피격 음성 3가지
         [SerializeField] private AudioSource audioSource;   // 음성을 재생할 오디오 소스
 
+        [Header("게임 오버 UI")]
+        [SerializeField] private GameObject gameOverUI; // 게임 오버 UI를 연결할 변수
+        [SerializeField] private Animator gameOverAnim;
+
         private Coroutine fadeCoroutine; // 페이드 아웃 코루틴 중복 실행 방지용
+
+        public bool isFainted = false; // 플레이어가 기절 상태인지 여부를 나타내는 변수
+        [SerializeField] GameObject player;
 
         void Start()
         {
@@ -30,6 +37,16 @@ namespace MyFPS
                 Color c = hitEffectImage.color;
                 c.a = 0f;
                 hitEffectImage.color = c;
+            }
+
+            if (gameOverUI != null)
+            {
+                gameOverUI.SetActive(false);
+            }
+
+            if (gameOverAnim != null)
+            {
+                gameOverAnim = gameOverUI.GetComponent<Animator>();
             }
         }
 
@@ -44,8 +61,11 @@ namespace MyFPS
             // 1. 피격 음성 랜덤 재생
             PlayRandomHitVoice();
 
-            // 2. 피격 UI 효과 실행
-            ShowHitEffect();
+            if (currentHealth > 0)
+            {
+                // 2. 피격 UI 효과 실행
+                ShowHitEffect();
+            }
 
             // 3. 체력 0 이하 시 사망 처리
             if (currentHealth <= 0)
@@ -110,7 +130,15 @@ namespace MyFPS
         private void Die()
         {
             Debug.Log("<color=red>플레이어가 사망했습니다!</color>");
-            // 추후 게임 오버 씬 전환이나 UI 표시 등을 이곳에 추가하세요.
+
+            isFainted = true;
+            player.SetActive(false); // 플레이어 오브젝트 비활성화
+
+            gameOverUI.SetActive(true); // 게임 오버 UI 활성화
+            gameOverAnim.Play("GameOver"); // 게임 오버 애니메이션 재생
+            
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
         }
     }
 }
