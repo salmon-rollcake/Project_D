@@ -22,7 +22,7 @@ namespace MyFPS
         [SerializeField] GameObject gunInteractUI;
         [SerializeField] GameObject ammoInteractUI;
 
-        [SerializeField] GameObject gun;
+        // [SerializeField] GameObject gun;
         
         void Start()
         {
@@ -49,6 +49,7 @@ namespace MyFPS
             {
                 SetInteractionUIActive(true);
                 ActiveGunUI(false); // 다른 UI는 꺼줌
+                ActiveAmmoUI(false);
 
                 if (Input.GetKeyDown(KeyCode.E))
                 {
@@ -64,6 +65,7 @@ namespace MyFPS
             {
                 SetInteractionUIActive(false);
                 ActiveGunUI(true); // 총 줍기 UI 활성화
+                ActiveAmmoUI(false);
 
                 if (Input.GetKeyDown(KeyCode.E))
                 {
@@ -80,6 +82,7 @@ namespace MyFPS
             else if (Physics.Raycast(ray, out hit, interactDistance, ammoLayer))
             {
                 SetInteractionUIActive(false);
+                ActiveGunUI(false); 
                 ActiveAmmoUI(true); // 탄약 줍기 UI 활성화
 
                 if (Input.GetKeyDown(KeyCode.E))

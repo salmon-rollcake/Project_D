@@ -8,6 +8,10 @@ namespace MyFPS
         [Header("연출 설정")]
         [SerializeField] private GameObject guideTextUI;       // 보여줄 텍스트 UI
         [SerializeField] private float displayTime = 3.0f;     // 텍스트를 보여줄 시간
+
+        [Header("더빙 오디오 설정")]
+        [SerializeField] private AudioSource audioSource;       // 오디오 재생을 위한 소스
+        [SerializeField] private AudioClip guideVoice;          // 대사 음원
         [SerializeField] private GameObject arrowObject;       // 연출 후 활성화할 화살표 오브젝트
 
         [Header("제어할 플레이어 참조")]
@@ -64,8 +68,17 @@ namespace MyFPS
             // 2. 텍스트 UI 띄우기
             if (guideTextUI != null) guideTextUI.SetActive(true);
 
-            // 3. 설정한 시간만큼 대기
-            yield return new WaitForSeconds(displayTime);
+            // 3. 음원 재생 및 음원 길이에 따른 대기 (음원이 없을 경우 displayTime만큼 대기)
+            if (audioSource != null && guideVoice != null)
+            {
+                audioSource.clip = guideVoice;
+                audioSource.Play();
+                yield return new WaitForSeconds(guideVoice.length);
+            }
+            else
+            {
+                yield return new WaitForSeconds(displayTime);
+            }
 
             // 4. 텍스트 UI 숨기기
             if (guideTextUI != null) guideTextUI.SetActive(false);

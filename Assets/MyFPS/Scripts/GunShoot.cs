@@ -14,6 +14,7 @@ namespace MyFPS
         [Header("애니메이터 설정")]
         [SerializeField] private Animator gunAnimator;                  // 총 오브젝트의 Animator
         [SerializeField] private string shootTriggerName = "ShootTrg"; // 발사 Trigger 파라미터 이름
+        [SerializeField] private string ammoParamName = "Ammo";        // 애니메이터의 Ammo 파라미터 이름
 
         [Header("사운드 설정")]
         [SerializeField] private AudioClip shootSound;                  // 발사 효과음
@@ -30,46 +31,68 @@ namespace MyFPS
         [Header("피격 이펙트")]
         [SerializeField] private ParticleSystem hitParticle;            // 피격 시 재생할 파티클
 
-        [Header("장탄 수 UI")]
-        [SerializeField] private int ammoCount = 0;                     // 장탄 수
-        [SerializeField] private GameObject ammoUI;                     // 장탄 수 UI 오브젝트
+        [Header("장탄 수")]
+        public int maxAmmo = 7;                       // 최대 장탄 수
+        public int ammoCount = 0;                     // 장탄 수
+
+        private void OnEnable()
+        {
+            UpdateAnimatorAmmo();
+        }
 
         void Update()
         {
             // 마우스 왼쪽 버튼 클릭 감지
-            if (Input.GetMouseButtonDown(0) && ammoCount > 0)
+            if (Input.GetMouseButtonDown(0))
             {
                 Shoot();
-            } else if (Input.GetMouseButtonDown(0) && ammoCount <= 0)
+            }
+        }
+
+        // 애니메이터의 Ammo 파라미터를 갱신하는 헬퍼 메서드 (★추가)
+        public void UpdateAnimatorAmmo()
+        {
+            if (gunAnimator != null)
             {
-                Debug.Log("<color=yellow>총알이 없습니다!</color>");
+                gunAnimator.SetInteger(ammoParamName, ammoCount);
             }
         }
 
         private void Shoot()
         {
-            // 1. 발사 애니메이션 Trigger 활성화
-            if (gunAnimator != null)
+            if (ammoCount <= 0)
             {
-                gunAnimator.ResetTrigger(shootTriggerName);
-                gunAnimator.SetTrigger(shootTriggerName);
+                Debug.Log("<color=yellow>총알이 없습니다!</color>");
+                return;
             }
 
-            // 2. 발사 사운드 재생
-            if (audioSource != null && shootSound != null)
-            {
-                audioSource.PlayOneShot(shootSound);
-            }
+            ammoCount--; // 발사 시 장탄 수 감소
+            UpdateAnimatorAmmo();
 
-            // 3. 총구 화염 이펙트 재생
-            if (muzzleFlash != null)
             {
-                muzzleFlash.Stop();    // 이전 파티클이 남아있을 경우 초기화
-                muzzleFlash.Play();
-            }
+                // 1. 발사 애니메이션 Trigger 활성화
+                if (gunAnimator != null)
+                {
+                    gunAnimator.ResetTrigger(shootTriggerName);
+                    gunAnimator.SetTrigger(shootTriggerName);
+                }
 
-            // 4. 레이캐스트로 적 감지 및 대미지 적용
-            FireRaycast();
+                // 2. 발사 사운드 재생
+                if (audioSource != null && audioSource.isActiveAndEnabled && shootSound != null)
+                {
+                    audioSource.PlayOneShot(shootSound);
+                }
+
+                // 3. 총구 화염 이펙트 재생
+                if (muzzleFlash != null)
+                {
+                    muzzleFlash.Stop();    // 이전 파티클이 남아있을 경우 초기화
+                    muzzleFlash.Play();
+                }
+
+                // 4. 레이캐스트로 적 감지 및 대미지 적용
+                FireRaycast();
+            }
         }
 
         private void FireRaycast()

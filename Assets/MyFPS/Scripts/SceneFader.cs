@@ -42,17 +42,18 @@ namespace MyFPS
             img.raycastTarget = true; //페이드 인 동안에는 UI가 클릭되지 않도록 막음
             img.color = new Color(0f, 0f, 0f, 1f);
 
-            //딜레이 시간만큼 대기
+            //딜레이 시간만큼 대기 (일시정지 중에도 대기하도록 Realtime 사용)
             if (delayTime > 0f)
             {
-                yield return new WaitForSeconds(delayTime);
+                yield return new WaitForSecondsRealtime(delayTime);
             }
 
             float t = 1f;
 
             while(t > 0f)
             {
-                t -= Time.deltaTime;
+                // 일시정지 중에도 페이드가 진행되도록 unscaledDeltaTime 사용
+                t -= Time.unscaledDeltaTime;
                 float a = curve.Evaluate(t);    //커브를 이용해서 알파값을 계산
                 img.color = new Color(0f, 0f, 0f, a);
 
@@ -82,11 +83,15 @@ namespace MyFPS
             float t = 0f;
             while (t < 1f)
             {
-                t += Time.deltaTime;
+                // 일시정지 중에도 페이드가 진행되도록 unscaledDeltaTime 사용
+                t += Time.unscaledDeltaTime;
                 float a = curve.Evaluate(t);    //커브를 이용해서 알파값을 계산
                 img.color = new Color(0f, 0f, 0f, a);
                 yield return 0;
             }
+
+            // 다음 씬에서 게임이 멈춰있지 않도록 Time.timeScale 정상화
+            Time.timeScale = 1f;
 
             //페이드 아웃이 끝나면 다음 씬으로 이동
             if(sceneName != null && sceneName != "")
@@ -101,11 +106,15 @@ namespace MyFPS
             float t = 0f;
             while (t < 1f)
             {
-                t += Time.deltaTime;
+                // 일시정지 중에도 페이드가 진행되도록 unscaledDeltaTime 사용
+                t += Time.unscaledDeltaTime;
                 float a = curve.Evaluate(t);    //커브를 이용해서 알파값을 계산
                 img.color = new Color(0f, 0f, 0f, a);
                 yield return 0;
             }
+
+            // 다음 씬에서 게임이 멈춰있지 않도록 Time.timeScale 정상화
+            Time.timeScale = 1f;
 
             //페이드 아웃이 끝나면 다음 씬으로 이동
             if (buildIndex >= 0)

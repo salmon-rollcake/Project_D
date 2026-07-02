@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using TMPro;
 
 namespace MyFPS
 {
@@ -9,6 +10,17 @@ namespace MyFPS
         [Header("시작 연출 설정")]
         [SerializeField] private GameObject introTextUI;       // 3초간 보여줄 인트로 텍스트 UI
         [SerializeField] private float introDelayTime = 3.0f;  // 대기할 시간 (3초)
+
+        [Header("더빙 오디오 설정")]
+        [SerializeField] private AudioSource audioSource;       // 오디오 재생을 위한 소스
+        [SerializeField] private AudioClip voiceClip1;          // 첫 번째 대사 음원
+        [SerializeField] private AudioClip voiceClip2;          // 두 번째 대사 음원
+
+        [Header("자막 설정")]
+        [SerializeField] private TextMeshProUGUI introTextMeshPro; // 자막을 표시할 TMPro UI 컴포넌트
+        [SerializeField] private string introText1 = "여기는 어디지..."; // 첫 번째 자막 내용
+        [SerializeField] private string introText2 = "누가 날 가둔 거야..."; // 두 번째 자막 내용
+        [SerializeField] private float delayBetweenTexts = 1.0f; // 두 자막 사이의 대기 시간 (초)
 
         [Header("제어할 플레이어 참조")]
         // 플레이어 최상위 오브젝트를 연결합니다.
@@ -67,8 +79,44 @@ namespace MyFPS
                 introTextUI.SetActive(true);
             }
 
-            // 3. 지정된 시간(3초) 대기
-            yield return new WaitForSeconds(introDelayTime);
+            // 첫 번째 대사 출력 및 음원 재생
+            if (introTextMeshPro != null)
+            {
+                introTextMeshPro.text = introText1;
+            }
+
+            if (audioSource != null && voiceClip1 != null)
+            {
+                audioSource.clip = voiceClip1;
+                audioSource.Play();
+                yield return new WaitForSeconds(voiceClip1.length);
+            }
+            else
+            {
+                // 음원이 없을 시 대기
+                yield return new WaitForSeconds(introDelayTime * 0.5f);
+            }
+
+            // 대사 사이 딜레이
+            yield return new WaitForSeconds(delayBetweenTexts);
+
+            // 두 번째 대사 출력 및 음원 재생
+            if (introTextMeshPro != null)
+            {
+                introTextMeshPro.text = introText2;
+            }
+
+            if (audioSource != null && voiceClip2 != null)
+            {
+                audioSource.clip = voiceClip2;
+                audioSource.Play();
+                yield return new WaitForSeconds(voiceClip2.length);
+            }
+            else
+            {
+                // 음원이 없을 시 대기
+                yield return new WaitForSeconds(introDelayTime * 0.5f);
+            }
 
             // 4. 인트로 텍스트 UI 비활성화
             if (introTextUI != null)
@@ -78,7 +126,10 @@ namespace MyFPS
 
             // 5. 플레이어 조작 활성화
             SetPlayerControl(true);
-            actionUI.SetActive(true);
+            if (actionUI != null)
+            {
+                actionUI.SetActive(true);
+            }
         }
 
         public void SetPlayerControl(bool isEnable)

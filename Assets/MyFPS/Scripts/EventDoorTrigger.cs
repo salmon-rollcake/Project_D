@@ -14,8 +14,6 @@ namespace MyFPS
         [SerializeField] private Animator doorAnimator;          // 문 애니메이터
         [SerializeField] private string doorOpenTrigger = "DoorTrg"; // 문 애니메이터 Trigger 파라미터 이름
         [SerializeField] private GameObject enemyObject;         // 활성화할 적 오브젝트
-        [SerializeField] private AudioClip enemyAppearSound;     // 적 등장 시 재생할 사운드
-        [SerializeField] private AudioSource audioSource;        // 사운드를 재생할 오디오 소스
         [SerializeField] private Transform lookTarget;           // 강제로 바라볼 대상 (문 중앙이나 적 등)
 
         private PlayerInteract playerInteraction;
@@ -62,13 +60,13 @@ namespace MyFPS
                 doorAnimator.SetTrigger(doorOpenTrigger);
             }
 
-            // 3. 적 활성화 및 등장 사운드 재생
+            // 3. 적 활성화 및 전투 BGM 재생
             if (enemyObject != null)
             {
                 enemyObject.SetActive(true);
-                if (audioSource != null && enemyAppearSound != null)
+                if (BGMManager.Instance != null)
                 {
-                    audioSource.PlayOneShot(enemyAppearSound);
+                    BGMManager.Instance.PlayCombatBGM();
                 }
             }
 

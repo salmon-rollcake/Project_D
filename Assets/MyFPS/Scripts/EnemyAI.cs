@@ -19,6 +19,7 @@ namespace MyFPS
         private PlayerHealth playerHealth;  // 플레이어 체력 스크립트 참조
         private float attackTimer = 0f;
         private bool isDead = false;
+        public bool IsDead => isDead;
 
         [SerializeField] GameObject player; // 플레이어 오브젝트를 에디터에서 연결
         bool playerFainted; 
