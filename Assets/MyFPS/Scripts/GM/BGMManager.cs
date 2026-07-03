@@ -7,7 +7,7 @@ namespace MyFPS
         public static BGMManager Instance { get; private set; }
 
         [Header("Audio Source")]
-        [SerializeField] private AudioSource audioSource;
+        public AudioSource audioSource;
 
         [Header("Audio Clips")]
         [SerializeField] private AudioClip defaultBGM;
@@ -15,6 +15,9 @@ namespace MyFPS
 
         private bool isCombat = false;
         private bool enemiesDetected = false;
+        private bool allEnemiesDefeated = false;
+
+        public bool AllEnemiesDefeated => allEnemiesDefeated;
 
         private void Awake()
         {
@@ -71,6 +74,7 @@ namespace MyFPS
                 // 적이 감지되었었고, 현재 살아있는 적이 없다면 기본 BGM으로 전환
                 if (enemiesDetected && !anyEnemyAlive)
                 {
+                    allEnemiesDefeated = true;
                     PlayDefaultBGM();
                 }
             }
@@ -87,6 +91,7 @@ namespace MyFPS
                 }
                 isCombat = true;
                 enemiesDetected = false; // 적 감지 플래그 초기화
+                allEnemiesDefeated = false;
             }
             else
             {
