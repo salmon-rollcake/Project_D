@@ -8,6 +8,17 @@ namespace MyFPS
 
     public class MainMenu : MonoBehaviour
     {
+        AudioManager audioManager;
+
+        public SceneFader fader;
+
+        [SerializeField] string LoadToScene;
+
+        private void Start()
+        {
+            AudioManager.Instance.PlayBGM("MainTheme");
+        }
+
         public void NewGame(string sceneName)
         {
             Debug.Log("새 게임을 시작합니다.");

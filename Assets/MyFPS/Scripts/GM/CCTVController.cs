@@ -1,36 +1,50 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace MyFPS
 {
 
+    /// <summary>
+    /// 마우스 포인터 따라가며 바라보기
+    /// </summary>
     public class CCTVController : MonoBehaviour
     {
-        [Header("회전 민감도")]
-        public float sensitivityX = 2.0f;
-        public float sensitivityY = 2.0f;
-
-        [Header("추적 속도")]
-        public float rotationSpeed = 5.0f;
-
-        private Quaternion centerRotation;
-
-        void Start()
+        #region Unity Event Method
+        private void Update()
         {
-            // 피벗 오브젝트의 처음 회전값(0,0,0)을 기준점으로 잡습니다.
-            centerRotation = transform.localRotation;
+            //마우스위치로 부터 월드 위치값 가져오기
+            //Vector3 worldPos = ScreenToWorld();
+            Vector3 worldPos = ScreenToRay();
+
+            transform.LookAt(worldPos);
+        }
+        #endregion
+
+        #region Custom Method
+        private Vector3 ScreenToWorld()
+        {
+            float z = 2f;
+            Vector2 mousePos = Mouse.current.position.ReadValue();
+            Vector3 mousePosition = new Vector3(mousePos.x, mousePos.y, z);
+            Vector3 worldPosition = Camera.main.ScreenToWorldPoint(mousePosition);
+            return worldPosition;
         }
 
-        void Update()
+        private Vector3 ScreenToRay()
         {
-            float mouseXRatio = (Input.mousePosition.x / Screen.width) * 2f - 1f;
-            float mouseYRatio = (Input.mousePosition.y / Screen.height) * 2f - 1f;
+            Vector3 worldPosition = Vector3.zero;
 
-            float targetYaw = mouseXRatio * sensitivityX * 30f;
-            float targetPitch = -mouseYRatio * sensitivityY * 30f;
+            Vector2 mousePos = Mouse.current.position.ReadValue();
+            Vector3 mousePosition = new Vector3(mousePos.x, mousePos.y, 0f);
+            Ray ray = Camera.main.ScreenPointToRay(mousePosition);
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit))
+            {
+                worldPosition = hit.point;
+            }
 
-            // 부모(피벗)가 회전하므로, 자식인 CCTV 머리는 자체 꺾인 각도를 유지한 채 자연스럽게 회전합니다.
-            Quaternion targetRotation = centerRotation * Quaternion.Euler(targetPitch, targetYaw, 0f);
-            transform.localRotation = Quaternion.Slerp(transform.localRotation, targetRotation, rotationSpeed * Time.deltaTime);
+            return worldPosition;
         }
+        #endregion
     }
 }

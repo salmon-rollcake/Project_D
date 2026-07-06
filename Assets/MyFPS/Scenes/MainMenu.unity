@@ -398,7 +398,6 @@ GameObject:
   m_Component:
   - component: {fileID: 88269254}
   - component: {fileID: 88269255}
-  - component: {fileID: 88269256}
   m_Layer: 0
   m_Name: CameraPivot
   m_TagString: Untagged
@@ -414,8 +413,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 88269253}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.000000021855694, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.472, y: -0.22398567, z: 0.008999954}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.122, y: 0.243, z: -0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -429,29 +428,11 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 88269253}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 78c1277e237ab4746a2b60f8658589e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MyFPS.CCTVController
-  sensitivityX: 2
-  sensitivityY: 2
-  rotationSpeed: 7
---- !u!114 &88269256
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 88269253}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 569f6ac2af145314e886df4596dd5361, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MyFPS.CCTV_World
-  targetCamera: {fileID: 253022394}
-  targetDepth: -4
-  rotationSpeed: 5
 --- !u!1 &97137892
 GameObject:
   m_ObjectHideFlags: 0
@@ -8223,6 +8204,59 @@ Transform:
   m_Children: []
   m_Father: {fileID: 52894252}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1370142343
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1370142345}
+  - component: {fileID: 1370142344}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1370142344
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1370142343}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6e873efe82a59c4c98a32a8bb4e7864, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MyFPS.AudioManager
+  sounds:
+  - name: MainTheme
+    audioClip: {fileID: 8300000, guid: 8c46e21c871ac0c4198c15780fae9580, type: 3}
+    volume: 0.2
+    pitch: 1
+    isLoop: 1
+    playOnAwake: 1
+    audioSource: {fileID: 0}
+  bgmNow: 
+--- !u!4 &1370142345
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1370142343}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1436209704
 GameObject:
   m_ObjectHideFlags: 0
@@ -8439,6 +8473,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2aa3b90fed33a074cac56c594100d6f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MyFPS.MainMenu
+  fader: {fileID: 1461990749}
+  LoadToScene: PlayScene01
 --- !u!1 &1579396547
 GameObject:
   m_ObjectHideFlags: 0
@@ -9839,13 +9875,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4764530496797344758}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: -0.258819, w: 0.9659259}
-  m_LocalPosition: {x: 0.020041764, y: -0.038713932, z: -0.008999896}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.323, y: -0.454, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 88269254}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -30}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &3173252631998177573
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -10023,3 +10059,4 @@ SceneRoots:
   - {fileID: 1461990750}
   - {fileID: 1689730522}
   - {fileID: 7205875721127719720}
+  - {fileID: 1370142345}
