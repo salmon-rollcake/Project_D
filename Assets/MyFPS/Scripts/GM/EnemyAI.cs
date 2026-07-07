@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace MyFPS
 {
-    public class EnemyAI : MonoBehaviour
+    public class EnemyAI : MonoBehaviour, IDamageable
     {
         [Header("능력치 설정")]
         [SerializeField] private int health = 20;             // 체력

@@ -115,12 +115,12 @@ namespace MyFPS
                     hitParticle.Play();
                 }
 
-                // 적 오브젝트에 대미지 적용 (EnemyAI 컴포넌트 확인)
-                EnemyAI enemy = hit.collider.GetComponent<EnemyAI>();
-                if (enemy != null)
+                // 대미지를 받을 수 있는 오브젝트에 대미지 적용 (IDamageable 인터페이스)
+                IDamageable damageable = hit.collider.GetComponentInParent<IDamageable>();
+                if (damageable != null)
                 {
-                    enemy.TakeDamage(damage);
-                    Debug.Log($"<color=cyan>적 '{hit.collider.name}'에 {damage}의 대미지를 입혔습니다.</color>");
+                    damageable.TakeDamage(damage);
+                    Debug.Log($"<color=cyan>'{hit.collider.name}'에 {damage}의 대미지를 입혔습니다.</color>");
                 }
             }
             else

@@ -194,7 +194,6 @@ GameObject:
   - component: {fileID: 5685710846283208565}
   - component: {fileID: -484639551681840594}
   - component: {fileID: 5540271451647767330}
-  - component: {fileID: -8896541992428873802}
   m_Layer: 0
   m_Name: Pistol
   m_TagString: Untagged
@@ -422,30 +421,6 @@ MonoBehaviour:
   bulletSpeed: 50
   damage: 5
   maxRange: 100
-  hitParticle: {fileID: 3061015098198091841, guid: 8dab52b39bb64d44da252b3dbf79fe59, type: 3}
-  maxAmmo: 7
-  ammoCount: 0
---- !u!114 &-8896541992428873802
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3147704416280841172}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bb34ba5058a4b504199f6106b59d2181, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MyFPS.GunShoot
-  gunAnimator: {fileID: 5685710846283208565}
-  shootTriggerName: ShootTrg
-  ammoParamName: Ammo
-  shootSound: {fileID: 8300000, guid: 49b74ddfea1c15045a62198bbb892744, type: 3}
-  audioSource: {fileID: -484639551681840594}
-  muzzleFlash: {fileID: 5787942711202379790}
-  range: 5
-  damage: 5
-  firePoint: {fileID: 1114869817887572243}
   hitParticle: {fileID: 3061015098198091841, guid: 8dab52b39bb64d44da252b3dbf79fe59, type: 3}
   maxAmmo: 7
   ammoCount: 0

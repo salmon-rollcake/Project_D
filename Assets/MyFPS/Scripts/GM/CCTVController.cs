@@ -9,6 +9,8 @@ namespace MyFPS
     /// </summary>
     public class CCTVController : MonoBehaviour
     {
+        [SerializeField] private LayerMask cctvWallLayer;
+
         #region Unity Event Method
         private void Update()
         {
@@ -38,7 +40,7 @@ namespace MyFPS
             Vector3 mousePosition = new Vector3(mousePos.x, mousePos.y, 0f);
             Ray ray = Camera.main.ScreenPointToRay(mousePosition);
             RaycastHit hit;
-            if (Physics.Raycast(ray, out hit))
+            if (Physics.Raycast(ray, out hit, Mathf.Infinity, cctvWallLayer))
             {
                 worldPosition = hit.point;
             }

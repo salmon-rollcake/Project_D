@@ -34,12 +34,12 @@ namespace MyFPS
 
         private void OnTriggerEnter(Collider other)
         {
-            // 1. 적 오브젝트 감지 및 대미지 적용
-            EnemyAI enemy = other.GetComponent<EnemyAI>();
-            if (enemy != null)
+            // 1. 대미지를 받을 수 있는 오브젝트에 대미지 적용 (IDamageable 인터페이스)
+            IDamageable damageable = other.GetComponentInParent<IDamageable>();
+            if (damageable != null)
             {
-                enemy.TakeDamage(damage);
-                Debug.Log($"<color=cyan>적 '{other.name}'에 {damage}의 대미지를 입혔습니다.</color>");
+                damageable.TakeDamage(damage);
+                Debug.Log($"<color=cyan>'{other.name}'에 {damage}의 대미지를 입혔습니다.</color>");
             }
 
             // 2. 피격 파티클 프리팹 생성 (Instantiate)
