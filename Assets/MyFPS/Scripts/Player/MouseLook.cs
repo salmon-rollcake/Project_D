@@ -33,7 +33,7 @@ namespace MyFPS
         {
             // 마우스 커서 초기화
             Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = true;
+            Cursor.visible = false; // 마우스 포인터 숨김 처리
         }
 
         private void LateUpdate()

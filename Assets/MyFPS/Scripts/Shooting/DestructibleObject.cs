@@ -4,35 +4,32 @@ namespace MyFPS
 {
     /// <summary>
     /// 파괴 가능한 오브젝트 (항아리 등)
-    /// 일정 횟수 피격 시 금이 간 상태로 전환, 추가 피격 시 파괴되어 조각 생성
+    /// 지정된 횟수 피격 시 즉시 파괴되며, 설정에 따라 아이템을 특정 위치와 회전값으로 생성합니다.
     /// </summary>
     public class DestructibleObject : MonoBehaviour, IDamageable
     {
-        [Header("오브젝트 상태")]
-        [SerializeField] private GameObject normalObject;           // 정상 상태 메시
-        [SerializeField] private GameObject crackedObject;          // 금이 간 상태 메시
+        [Header("오브젝트 메쉬")]
+        [SerializeField] private GameObject normalObject;           // 평상시 오브젝트 메시
 
-        [Header("파괴 조각")]
-        [SerializeField] private GameObject destroyedPiecesPrefab;  // 파괴 조각 프리팹
+        [Header("파괴 조건")]
+        [SerializeField] private int crackThreshold = 3;            // 파괴되기까지 필요한 적중 횟수
 
-        [Header("적중 임계값")]
-        [SerializeField] private int crackThreshold = 3;            // 금이 가기까지 필요한 적중 횟수
-        [SerializeField] private int destroyThreshold = 5;          // 파괴까지 필요한 총 적중 횟수
+        [Header("아이템 드롭 설정")]
+        [Tooltip("체크하면 파괴될 때 아이템을 생성합니다.")]
+        [SerializeField] private bool dropItemOnDestroy = true;     // 아이템 드롭 여부
+        [SerializeField] private GameObject itemPrefab;             // 생성할 아이템 프리팹
+        [SerializeField] private float itemSpawnOffsetY = 0.5f;    // 아이템 생성 Y축 오프셋
+        
+        [Tooltip("생성되는 아이템의 초기 회전값(각도)을 조정합니다. (예: X를 90으로 주면 눕혀서 생성 가능)")]
+        [SerializeField] private Vector3 itemSpawnRotationOffset = Vector3.zero; // 로테이션 오프셋 추가
 
-        [Header("파괴 효과")]
-        [SerializeField] private float explosionForce = 200f;       // 조각에 가해지는 힘
-        [SerializeField] private float explosionRadius = 2f;        // 폭발 반경
-        [SerializeField] private float destroyDelay = 5f;           // 조각 자동 제거 시간 (초)
-
-        private int hitCount = 0;       // 현재 적중 횟수
-        private bool isCracked = false; // 금이 간 상태 여부
-        private bool isDestroyed = false;
+        private int hitCount = 0;         // 현재 적중 횟수
+        private bool isDestroyed = false; // 중복 파괴 방지 플래그
 
         private void Start()
         {
-            // 초기 상태: 정상 오브젝트만 활성화
+            // 초기 상태: 정상 오브젝트 활성화
             if (normalObject != null) normalObject.SetActive(true);
-            if (crackedObject != null) crackedObject.SetActive(false);
         }
 
         /// <summary>
@@ -43,60 +40,44 @@ namespace MyFPS
             if (isDestroyed) return;
 
             hitCount++;
-            Debug.Log($"<color=orange>{gameObject.name} 적중! ({hitCount}/{destroyThreshold})</color>");
-
-            // 파괴 임계값 도달
-            if (hitCount >= destroyThreshold)
+            if (hitCount >= crackThreshold)
             {
-                Destroy();
-            }
-            // 금이 간 임계값 도달
-            else if (!isCracked && hitCount >= crackThreshold)
-            {
-                Crack();
+                DestroyObject();
             }
         }
 
         /// <summary>
-        /// 금이 간 상태로 전환
+        /// 오브젝트 완전히 파괴 및 아이템 생성
         /// </summary>
-        private void Crack()
-        {
-            isCracked = true;
-
-            if (normalObject != null) normalObject.SetActive(false);
-            if (crackedObject != null) crackedObject.SetActive(true);
-
-            Debug.Log($"<color=yellow>{gameObject.name}에 금이 갔습니다!</color>");
-        }
-
-        /// <summary>
-        /// 오브젝트 파괴 - 조각 프리팹 생성 및 물리 효과 적용
-        /// </summary>
-        private void Destroy()
+        private void DestroyObject()
         {
             isDestroyed = true;
 
-            // 조각 프리팹 생성
-            if (destroyedPiecesPrefab != null)
+            Debug.Log($"<color=red>{gameObject.name}이(가) 완전히 파괴되었습니다!</color>");
+
+            if (dropItemOnDestroy)
             {
-                GameObject pieces = Instantiate(destroyedPiecesPrefab, transform.position, transform.rotation);
-
-                // 각 조각에 폭발 물리력 적용
-                Rigidbody[] pieceRigidbodies = pieces.GetComponentsInChildren<Rigidbody>();
-                foreach (Rigidbody rb in pieceRigidbodies)
-                {
-                    rb.AddExplosionForce(explosionForce, transform.position, explosionRadius);
-                }
-
-                // 일정 시간 후 조각 자동 제거
-                UnityEngine.Object.Destroy(pieces, destroyDelay);
+                SpawnFloatingItem();
             }
 
-            Debug.Log($"<color=red>{gameObject.name}이(가) 파괴되었습니다!</color>");
+            Destroy(gameObject);
+        }
 
-            // 원본 오브젝트 제거
-            UnityEngine.Object.Destroy(gameObject);
+        /// <summary>
+        /// 오브젝트 위치에 아이템 스폰 (회전 오프셋 반영)
+        /// </summary>
+        private void SpawnFloatingItem()
+        {
+            if (itemPrefab == null) return;
+
+            // 1. 생성 위치 계산 (Y축 높이 조정)
+            Vector3 spawnPosition = transform.position + Vector3.up * itemSpawnOffsetY;
+
+            // 2. 인스펙터에서 입력한 Vector3(각도)를 유니티 회전값(Quaternion)으로 변환
+            Quaternion spawnRotation = Quaternion.Euler(itemSpawnRotationOffset);
+
+            // 3. 지정한 위치와 회전값으로 아이템 생성
+            Instantiate(itemPrefab, spawnPosition, spawnRotation);
         }
     }
 }

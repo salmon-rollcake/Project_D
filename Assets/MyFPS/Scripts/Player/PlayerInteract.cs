@@ -1,10 +1,9 @@
 using System;
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
 
 namespace MyFPS
 {
-
     public class PlayerInteract : MonoBehaviour
     {
         [Header("Raycast 설정")]
@@ -17,19 +16,23 @@ namespace MyFPS
         [SerializeField] private Transform playerCamera;
 
         [Header("UI 설정")]
-        // 유니티 에디터에서 상호작용 텍스트 오브젝트(또는 Canvas 패널)를 드래그앤드롭할 변수
-        [SerializeField] GameObject interactionUI;
-        [SerializeField] GameObject gunInteractUI;
-        [SerializeField] GameObject ammoInteractUI;
+        [SerializeField] private GameObject interactionUI;
+        [SerializeField] private GameObject gunInteractUI;
+        [SerializeField] private GameObject ammoInteractUI;
 
-        // [SerializeField] GameObject gun;
-        
+        [Header("버튼 트리거 UI 설정 (TMPro)")]
+        [SerializeField] private TextMeshProUGUI buttonOffUI; // Off 상태(기본 상태)일 때 보여줄 UI (예: "문 열기 [E]")
+        [SerializeField] private TextMeshProUGUI buttonOnUI;  // On 상태(활성화 상태)일 때 보여줄 UI (예: "문 닫기 [E]")
+
         void Start()
         {
             if (playerCamera == null)
             {
                 playerCamera = Camera.main.transform;
             }
+
+            // 시작할 때 모든 버튼 UI를 꺼둡니다.
+            DeactivateButtonUI();
         }
 
         void Update()
@@ -44,101 +47,139 @@ namespace MyFPS
 
             Debug.DrawRay(ray.origin, ray.direction * interactDistance, Color.red);
 
-            // 1. 문 레이어 감지
-            if (Physics.Raycast(ray, out hit, interactDistance, doorLayer))
-            {
-                SetInteractionUIActive(true);
-                ActiveGunUI(false); // 다른 UI는 꺼줌
-                ActiveAmmoUI(false);
+            // 레이어 마스크 비트 연산으로 단 한 번만 레이캐스트를 발사하도록 최적화
+            int combinedMask = doorLayer | gunLayer | ammoLayer;
 
-                if (Input.GetKeyDown(KeyCode.E))
+            if (Physics.Raycast(ray, out hit, interactDistance, combinedMask))
+            {
+                int hitLayer = hit.collider.gameObject.layer;
+
+                // 1. 문 레이어 감지
+                if (((1 << hitLayer) & doorLayer) != 0)
                 {
-                    DoorCellOpen door = hit.collider.GetComponentInParent<DoorCellOpen>();
-                    if (door != null)
+                    ActiveGunUI(false);
+                    ActiveAmmoUI(false);
+
+                    InteractTriggerButton button = hit.collider.GetComponent<InteractTriggerButton>();
+                    if (button != null)
                     {
-                        door.OpenDoor();
+                        // 일반 문 UI는 끄고 버튼 상태에 따른 UI 활성화
+                        SetInteractionUIActive(true);
+                        UpdateButtonUI(button.IsOn);
+                    }
+                    else
+                    {
+                        // 일반 문 UI 활성화 및 버튼 UI 비활성화
+                        SetInteractionUIActive(false);
+                        DeactivateButtonUI();
+                    }
+
+                    if (Input.GetKeyDown(KeyCode.E))
+                    {
+                        DoorCellOpen door = hit.collider.GetComponentInParent<DoorCellOpen>();
+                        if (door != null)
+                        {
+                            door.OpenDoor();
+                        }
+
+                        if (button != null)
+                        {
+                            button.Interact();
+                            // 상호작용 후 즉시 상태 갱신
+                            UpdateButtonUI(button.IsOn);
+                        }
+                    }
+                }
+                // 2. 총 레이어 감지
+                else if (((1 << hitLayer) & gunLayer) != 0)
+                {
+                    SetInteractionUIActive(false);
+                    DeactivateButtonUI();
+                    ActiveGunUI(true);
+                    ActiveAmmoUI(false);
+
+                    if (Input.GetKeyDown(KeyCode.E))
+                    {
+                        PickupGun gun = hit.collider.GetComponentInParent<PickupGun>();
+                        if (gun != null)
+                        {
+                            gun.GunPickup();
+                            ActiveGunUI(false);
+                        }
+                    }
+                }
+                // 3. 탄약 레이어 감지
+                else if (((1 << hitLayer) & ammoLayer) != 0)
+                {
+                    SetInteractionUIActive(false);
+                    DeactivateButtonUI();
+                    ActiveGunUI(false);
+                    ActiveAmmoUI(true);
+
+                    if (Input.GetKeyDown(KeyCode.E))
+                    {
+                        PickupGun ammo = hit.collider.GetComponentInParent<PickupGun>();
+                        if (ammo != null)
+                        {
+                            ammo.AmmoPickup();
+                            ActiveAmmoUI(false);
+                        }
                     }
                 }
             }
-            // 2. 총 레이어 감지 (문이 아닐 때)
-            else if (Physics.Raycast(ray, out hit, interactDistance, gunLayer))
-            {
-                SetInteractionUIActive(false);
-                ActiveGunUI(true); // 총 줍기 UI 활성화
-                ActiveAmmoUI(false);
-
-                if (Input.GetKeyDown(KeyCode.E))
-                {
-                    PickupGun gun = hit.collider.GetComponentInParent<PickupGun>();
-                    if (gun != null)
-                    {
-                        gun.GunPickup();
-                        // 줍자마자 바로 UI를 끄기 (오브젝트가 파괴되면서 다음 프레임에 어차피 꺼지지만, 명시적으로 꺼줍니다)
-                        ActiveGunUI(false);
-                    }
-                }
-            }
-            // 3. 탄약 레이어 감지
-            else if (Physics.Raycast(ray, out hit, interactDistance, ammoLayer))
-            {
-                SetInteractionUIActive(false);
-                ActiveGunUI(false); 
-                ActiveAmmoUI(true); // 탄약 줍기 UI 활성화
-
-                if (Input.GetKeyDown(KeyCode.E))
-                {
-                    PickupGun ammo = hit.collider.GetComponentInParent<PickupGun>();
-                    if (ammo != null)
-                    {
-                        ammo.AmmoPickup();
-                        // 줍자마자 바로 UI를 끄기 (오브젝트가 파괴되면서 다음 프레임에 어차피 꺼지지만, 명시적으로 꺼줍니다)
-                        ActiveAmmoUI(false);
-                    }
-                }
-            }
-            // 3. 아무것도 감지되지 않음
             else
             {
+                // 아무것도 감지되지 않았을 때 모든 UI 비활성화
                 SetInteractionUIActive(false);
                 ActiveGunUI(false);
                 ActiveAmmoUI(false);
+                DeactivateButtonUI();
             }
         }
 
-        // UI의 활성화 상태를 안전하게 변경하는 헬퍼 함수
+        // 버튼 상태에 따른 UI 갱신 헬퍼 함수
+        private void UpdateButtonUI(bool isOn)
+        {
+            if (isOn)
+            {
+                if (buttonOnUI != null) buttonOnUI.gameObject.SetActive(true);
+                if (buttonOffUI != null) buttonOffUI.gameObject.SetActive(false);
+            }
+            else
+            {
+                if (buttonOnUI != null) buttonOnUI.gameObject.SetActive(false);
+                if (buttonOffUI != null) buttonOffUI.gameObject.SetActive(true);
+            }
+        }
+
+        // 버튼 UI 일괄 비활성화 헬퍼 함수
+        private void DeactivateButtonUI()
+        {
+            if (buttonOnUI != null) buttonOnUI.gameObject.SetActive(false);
+            if (buttonOffUI != null) buttonOffUI.gameObject.SetActive(false);
+        }
+
         private void SetInteractionUIActive(bool isActive)
         {
-            if (interactionUI != null)
+            if (interactionUI != null && interactionUI.activeSelf != isActive)
             {
-                // 현재 상태와 바꿀 상태가 다를 때만 SetActive를 호출하여 불필요한 연산을 줄입니다.
-                if (interactionUI.activeSelf != isActive)
-                {
-                    interactionUI.SetActive(isActive);
-                }
+                interactionUI.SetActive(isActive);
             }
         }
 
         private void ActiveGunUI(bool isActive)
         {
-            if (gunInteractUI != null)
+            if (gunInteractUI != null && gunInteractUI.activeSelf != isActive)
             {
-                // 현재 상태와 바꿀 상태가 다를 때만 SetActive를 호출하여 불필요한 연산을 줄입니다.
-                if (gunInteractUI.activeSelf != isActive)
-                {
-                    gunInteractUI.SetActive(isActive);
-                }
+                gunInteractUI.SetActive(isActive);
             }
         }
 
         private void ActiveAmmoUI(bool isActive)
         {
-            if (ammoInteractUI != null)
+            if (ammoInteractUI != null && ammoInteractUI.activeSelf != isActive)
             {
-                // 현재 상태와 바꿀 상태가 다를 때만 SetActive를 호출하여 불필요한 연산을 줄입니다.
-                if (ammoInteractUI.activeSelf != isActive)
-                {
-                    ammoInteractUI.SetActive(isActive);
-                }
+                ammoInteractUI.SetActive(isActive);
             }
         }
     }

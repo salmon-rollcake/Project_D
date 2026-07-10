@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
@@ -44,7 +44,7 @@ namespace MyFPS
                 gameOverUI.SetActive(false);
             }
 
-            if (gameOverAnim != null)
+            if (gameOverAnim == null && gameOverUI != null)
             {
                 gameOverAnim = gameOverUI.GetComponent<Animator>();
             }
@@ -132,13 +132,36 @@ namespace MyFPS
             Debug.Log("<color=red>플레이어가 사망했습니다!</color>");
 
             isFainted = true;
-            player.SetActive(false); // 플레이어 오브젝트 비활성화
+            DisablePlayerControl();
 
-            gameOverUI.SetActive(true); // 게임 오버 UI 활성화
-            gameOverAnim.Play("GameOver"); // 게임 오버 애니메이션 재생
+            if (gameOverUI != null)
+            {
+                gameOverUI.SetActive(true);
+            }
+
+            if (gameOverAnim != null)
+            {
+                gameOverAnim.Play("GameOver");
+            }
             
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
+
+        private void DisablePlayerControl()
+        {
+            GameObject target = player != null ? player : gameObject;
+
+            CharacterInput characterInput = target.GetComponent<CharacterInput>();
+            PlayerMove playerMove = target.GetComponent<PlayerMove>();
+            MouseLook mouseLook = target.GetComponent<MouseLook>();
+            PlayerInteract playerInteract = target.GetComponent<PlayerInteract>();
+
+            if (characterInput != null) characterInput.enabled = false;
+            if (playerMove != null) playerMove.enabled = false;
+            if (mouseLook != null) mouseLook.enabled = false;
+            if (playerInteract != null) playerInteract.enabled = false;
+        }
     }
 }
+

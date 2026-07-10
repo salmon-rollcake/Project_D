@@ -1,7 +1,4 @@
-using Unity.VisualScripting;
-using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
+﻿using UnityEngine;
 
 namespace MyFPS
 {
@@ -28,9 +25,29 @@ namespace MyFPS
 
         private void Awake()
         {
-            gun.SetActive(false);
-            ammoUI.SetActive(false);
-            gunShoot = gun.GetComponent<GunShootProjectile>();
+            if (gun != null)
+            {
+                gun.SetActive(false);
+                gunShoot = gun.GetComponent<GunShootProjectile>();
+
+                if (gunShoot == null)
+                {
+                    Debug.LogWarning("PickupGun: GunShootProjectile is missing on gun.");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("PickupGun: gun reference is missing.");
+            }
+
+            if (ammoUI != null)
+            {
+                ammoUI.SetActive(false);
+            }
+            else
+            {
+                Debug.LogWarning("PickupGun: ammoUI reference is missing.");
+            }
         }
 
         void Update()
@@ -43,22 +60,28 @@ namespace MyFPS
 
         void AllPickup()
         {
-            arrow.SetActive(false);
-            spotLight.SetActive(false);
+            if (arrow != null) arrow.SetActive(false);
+            if (spotLight != null) spotLight.SetActive(false);
         }
 
         public void GunPickup()
         {
             isGunPickedUp = true;
-            gun.SetActive(true);
-            desk_gun.SetActive(false);
-            ammoUI.SetActive(true);
+            if (gun != null) gun.SetActive(true);
+            if (desk_gun != null) desk_gun.SetActive(false);
+            if (ammoUI != null) ammoUI.SetActive(true);
         }
 
         public void AmmoPickup()
         {
             isAmmoPickedUp = true;
-            ammo.SetActive(false);
+            if (ammo != null) ammo.SetActive(false);
+
+            if (gunShoot == null)
+            {
+                Debug.LogWarning("PickupGun: GunShootProjectile is missing, ammo cannot be added.");
+                return;
+            }
 
             // 탄약을 주우면 7발 충전 (최대 탄수를 넘지 않도록 제한하려면 Mathf.Min 사용 가능)
             gunShoot.ammoCount = Mathf.Min(gunShoot.ammoCount + 7, gunShoot.maxAmmo);

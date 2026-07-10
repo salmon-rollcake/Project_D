@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 
 namespace MyFPS
@@ -45,6 +45,12 @@ namespace MyFPS
         {
             if (hasTriggered || !other.CompareTag("Player")) return;
 
+            if (string.IsNullOrWhiteSpace(nextSceneName))
+            {
+                Debug.LogWarning("SceneTransitionTrigger: nextSceneName is empty.");
+                return;
+            }
+
             hasTriggered = true;
             StartCoroutine(TransitionSequence());
         }
@@ -57,7 +63,11 @@ namespace MyFPS
             // 2. 페이더가 있으면 페이드아웃 후 전환, 없으면 즉시 전환
             if (sceneFader != null)
             {
-                bgm.audioSource.Pause(); // BGM 일시정지
+                if (bgm != null && bgm.audioSource != null)
+                {
+                    bgm.audioSource.Pause();
+                }
+
                 sceneFader.FadeTo(nextSceneName);
             }
             else
@@ -77,3 +87,4 @@ namespace MyFPS
         }
     }
 }
+

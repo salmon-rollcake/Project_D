@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace MyFPS
 {
@@ -22,9 +22,6 @@ namespace MyFPS
         public bool IsDead => isDead;
 
         [SerializeField] GameObject player; // 플레이어 오브젝트를 에디터에서 연결
-        bool playerFainted; 
-
-        int playerHP;
 
         void Start()
         {
@@ -34,24 +31,28 @@ namespace MyFPS
             }
 
             // 씬에서 Player 태그를 가진 오브젝트를 찾습니다.
-            player = GameObject.FindGameObjectWithTag("Player");
-            playerFainted = player.GetComponent<PlayerHealth>().isFainted;
+            if (player == null)
+            {
+                player = GameObject.FindGameObjectWithTag("Player");
+            }
 
             if (player != null)
             {
                 playerTarget = player.transform;
                 playerHealth = player.GetComponent<PlayerHealth>();
 
-                playerHP = player.GetComponent<PlayerHealth>().currentHealth;
-
                 if (playerHealth == null)
                 {
-                    Debug.LogWarning("EnemyAI: Player 오브젝트에 PlayerHealth 스크립트가 없습니다.");
+                    enabled = false;
+                    Debug.LogWarning("EnemyAI: required Player reference is missing.");
+                    return;
                 }
             }
             else
             {
-                Debug.LogWarning("EnemyAI: Player 태그를 가진 오브젝트를 찾을 수 없습니다.");
+                enabled = false;
+                Debug.LogWarning("EnemyAI: required Player reference is missing.");
+                return;
             }
 
             // 초기 상태 설정 (대기)
@@ -67,7 +68,7 @@ namespace MyFPS
             // 공격 중일 때는 이동이나 다른 판단을 잠시 멈춤
             if (isAttacking) return;
 
-            if (playerFainted == true)
+            if (playerHealth != null && playerHealth.isFainted)
             {
                 // 플레이어가 기절 상태이면 공격하지 않음
                 return;
@@ -204,3 +205,4 @@ namespace MyFPS
         }
     }
 }
+

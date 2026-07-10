@@ -1,0 +1,129 @@
+using UnityEngine;
+using TMPro;
+
+namespace MyFPS
+{
+    /// <summary>
+    /// PlayerInteract와 연계하여 작동하는 재사용 가능한 버튼형 트리거 스크립트
+    /// 상호작용 시 On/Off 상태를 토글하며 마테리얼, 애니메이터, 그리고 On/Off 개별 TMPro UI를 제어합니다.
+    /// </summary>
+    public class InteractTriggerButton : MonoBehaviour
+    {
+        [Header("마테리얼 설정")]
+        [SerializeField] private Renderer buttonRenderer;          // 마테리얼을 바꿀 대상 (버튼 메시 렌더러)
+        [SerializeField] private Material defaultMaterial;          // 기본 마테리얼 (Off 상태)
+        [SerializeField] private Material activeMaterial;           // 활성화 마테리얼 (On 상태)
+
+        [Header("연동 애니메이션 설정")]
+        [SerializeField] private Animator targetAnimator;           // 제어할 대상 애니메이터 (예: 문)
+        [SerializeField] private string animatorBoolParam = "IsOpen"; // 제어할 Bool 파라미터 이름
+
+        [Header("사운드 설정 (선택사항)")]
+        [SerializeField] private AudioSource interactSound;          // 상호작용 시 재생할 사운드
+
+        [Header("상호작용 UI (TMPro) 설정")]
+        [SerializeField] private TextMeshProUGUI offStateUI;        // Off 상태(기본 상태)일 때 보여줄 UI (예: "문 열기 [E]")
+        [SerializeField] private TextMeshProUGUI onStateUI;         // On 상태(활성화 상태)일 때 보여줄 UI (예: "문 닫기 [E]")
+
+        private bool isOn = false;
+        private bool isLookedAt = false; // 현재 플레이어가 조준 중인지 여부
+
+        void Awake()
+        {
+            if (buttonRenderer == null)
+            {
+                buttonRenderer = GetComponent<Renderer>();
+            }
+
+            // 초기 마테리얼 설정
+            if (buttonRenderer != null && defaultMaterial != null)
+            {
+                buttonRenderer.material = defaultMaterial;
+            }
+
+            // 시작할 때 상호작용 UI를 모두 꺼둡니다.
+            DeactivateAllUI();
+        }
+
+        /// <summary>
+        /// PlayerInteract에서 조준 여부가 바뀔 때 호출하는 메서드
+        /// </summary>
+        public void SetLookedAt(bool isLooking)
+        {
+            isLookedAt = isLooking;
+
+            if (isLookedAt)
+            {
+                UpdateUI();
+            }
+            else
+            {
+                DeactivateAllUI();
+            }
+        }
+
+        /// <summary>
+        /// PlayerInteract에 의해 E키 상호작용 감지 시 호출되는 메서드
+        /// </summary>
+        public void Interact()
+        {
+            // On/Off 상태 토글
+            isOn = !isOn;
+
+            // 1. 버튼 마테리얼 교체
+            if (buttonRenderer != null)
+            {
+                Material targetMat = isOn ? activeMaterial : defaultMaterial;
+                if (targetMat != null)
+                {
+                    buttonRenderer.material = targetMat;
+                }
+            }
+
+            // 2. 연동된 애니메이터 상태 업데이트 (문 열림/닫힘 등)
+            if (targetAnimator != null && !string.IsNullOrEmpty(animatorBoolParam))
+            {
+                targetAnimator.SetBool(animatorBoolParam, isOn);
+                Debug.Log($"[InteractTriggerButton] {gameObject.name} 상호작용: Param '{animatorBoolParam}' -> {isOn}");
+            }
+
+            // 3. 사운드 재생
+            if (interactSound != null)
+            {
+                interactSound.Play();
+            }
+
+            // 4. 조준 중인 상태였다면 활성화된 UI 갱신
+            if (isLookedAt)
+            {
+                UpdateUI();
+            }
+        }
+
+        /// <summary>
+        /// 현재 상태(isOn)에 적합한 UI만 켜고 다른 것은 끄는 헬퍼 메서드
+        /// </summary>
+        private void UpdateUI()
+        {
+            if (isOn)
+            {
+                if (onStateUI != null) onStateUI.gameObject.SetActive(true);
+                if (offStateUI != null) offStateUI.gameObject.SetActive(false);
+            }
+            else
+            {
+                if (onStateUI != null) onStateUI.gameObject.SetActive(false);
+                if (offStateUI != null) offStateUI.gameObject.SetActive(true);
+            }
+        }
+
+        /// <summary>
+        /// 모든 상호작용 UI를 비활성화하는 헬퍼 메서드
+        /// </summary>
+        private void DeactivateAllUI()
+        {
+            if (offStateUI != null) offStateUI.gameObject.SetActive(false);
+            if (onStateUI != null) onStateUI.gameObject.SetActive(false);
+        }
+    }
+}

@@ -47,35 +47,41 @@ namespace MyFPS
         private void Start()
         {
             PlayDefaultBGM();
+            StartCoroutine(CheckEnemiesRoutine());
         }
 
-        private void Update()
+        private System.Collections.IEnumerator CheckEnemiesRoutine()
         {
-            if (isCombat)
+            while (true)
             {
-                // 씬 내의 모든 EnemyAI를 탐색 (FindObjectsByType 사용으로 경고 해결 및 성능 향상)
-                EnemyAI[] enemies = FindObjectsByType<EnemyAI>(FindObjectsSortMode.None);
-                
-                bool anyEnemyAlive = false;
-                foreach (var enemy in enemies)
+                yield return new WaitForSeconds(0.5f); // 0.5초 주기 검사
+
+                if (isCombat)
                 {
-                    if (enemy != null && enemy.gameObject.activeInHierarchy && !enemy.IsDead)
+                    // 씬 내의 모든 EnemyAI를 탐색
+                    EnemyAI[] enemies = FindObjectsByType<EnemyAI>(FindObjectsSortMode.None);
+                    
+                    bool anyEnemyAlive = false;
+                    foreach (var enemy in enemies)
                     {
-                        anyEnemyAlive = true;
-                        break;
+                        if (enemy != null && enemy.gameObject.activeInHierarchy && !enemy.IsDead)
+                        {
+                            anyEnemyAlive = true;
+                            break;
+                        }
                     }
-                }
 
-                if (anyEnemyAlive)
-                {
-                    enemiesDetected = true;
-                }
+                    if (anyEnemyAlive)
+                    {
+                        enemiesDetected = true;
+                    }
 
-                // 적이 감지되었었고, 현재 살아있는 적이 없다면 기본 BGM으로 전환
-                if (enemiesDetected && !anyEnemyAlive)
-                {
-                    allEnemiesDefeated = true;
-                    PlayDefaultBGM();
+                    // 적이 감지되었었고, 현재 살아있는 적이 없다면 기본 BGM으로 전환
+                    if (enemiesDetected && !anyEnemyAlive)
+                    {
+                        allEnemiesDefeated = true;
+                        PlayDefaultBGM();
+                    }
                 }
             }
         }
