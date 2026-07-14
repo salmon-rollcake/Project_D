@@ -9,7 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4779394870751899358}
+  - component: {fileID: 6017751017001397476}
   - component: {fileID: 1653416366791519436}
+  - component: {fileID: 1981354808363189605}
   m_Layer: 0
   m_Name: HeartKey
   m_TagString: Untagged
@@ -33,6 +35,27 @@ Transform:
   - {fileID: 3763643007070729816}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 90}
+--- !u!65 &6017751017001397476
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1793981928212994475}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2.2987368, y: 1, z: 4.938646}
+  m_Center: {x: 0.0085657835, y: 0, z: 2.2451224}
 --- !u!114 &1653416366791519436
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -48,6 +71,20 @@ MonoBehaviour:
   rotateSpeed: 0
   amplitude: 0.15
   frequency: 2
+--- !u!114 &1981354808363189605
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1793981928212994475}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2e9fd1a2c93e164385bcb8554146627, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MyFPS.KeyItem
+  pickupSound: {fileID: 0}
+  soundVolume: 1
 --- !u!1 &4369823318529190745
 GameObject:
   m_ObjectHideFlags: 0

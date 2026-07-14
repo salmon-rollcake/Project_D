@@ -23,6 +23,10 @@ namespace MyFPS
         [Header("버튼 트리거 UI 설정 (TMPro)")]
         [SerializeField] private TextMeshProUGUI buttonOffUI; // Off 상태(기본 상태)일 때 보여줄 UI (예: "문 열기 [E]")
         [SerializeField] private TextMeshProUGUI buttonOnUI;  // On 상태(활성화 상태)일 때 보여줄 UI (예: "문 닫기 [E]")
+        [SerializeField] private TextMeshProUGUI lockedUI;    // 열쇠가 없을 때 보여줄 UI (예: "열쇠가 필요합니다")
+
+        [Header("상태 변수")]
+        public bool getKey = false; // 열쇠 획득 여부
 
         void Start()
         {
@@ -33,6 +37,7 @@ namespace MyFPS
 
             // 시작할 때 모든 버튼 UI를 꺼둡니다.
             DeactivateButtonUI();
+            if (lockedUI != null) lockedUI.gameObject.SetActive(false);
         }
 
         void Update()
@@ -47,7 +52,6 @@ namespace MyFPS
 
             Debug.DrawRay(ray.origin, ray.direction * interactDistance, Color.red);
 
-            // 레이어 마스크 비트 연산으로 단 한 번만 레이캐스트를 발사하도록 최적화
             int combinedMask = doorLayer | gunLayer | ammoLayer;
 
             if (Physics.Raycast(ray, out hit, interactDistance, combinedMask))
@@ -63,19 +67,39 @@ namespace MyFPS
                     InteractTriggerButton button = hit.collider.GetComponent<InteractTriggerButton>();
                     if (button != null)
                     {
-                        // 일반 문 UI는 끄고 버튼 상태에 따른 UI 활성화
-                        SetInteractionUIActive(true);
-                        UpdateButtonUI(button.IsOn);
+                        // ★ 수정: 버튼이 잠겨있고 열쇠가 없는 경우
+                        if (button.needsKey && !getKey)
+                        {
+                            // 기본 상호작용 부모 UI(interactionUI)가 lockedUI의 부모라면 활성화(true)되어야 내부 자식인 lockedUI가 보입니다.
+                            SetInteractionUIActive(true); 
+                            DeactivateButtonUI(); // 일반 문 열기/닫기 텍스트는 끄기
+                            
+                            if (lockedUI != null && !lockedUI.gameObject.activeSelf) 
+                                lockedUI.gameObject.SetActive(true);
+                        }
+                        else
+                        {
+                            // 열쇠가 있거나, 열쇠가 필요 없는 버튼인 경우
+                            if (lockedUI != null) lockedUI.gameObject.SetActive(false);
+                            SetInteractionUIActive(true);
+                            UpdateButtonUI(button.IsOn);
+                        }
                     }
                     else
                     {
-                        // 일반 문 UI 활성화 및 버튼 UI 비활성화
                         SetInteractionUIActive(false);
                         DeactivateButtonUI();
+                        if (lockedUI != null) lockedUI.gameObject.SetActive(false);
                     }
 
                     if (Input.GetKeyDown(KeyCode.E))
                     {
+                        if (button != null && button.needsKey && !getKey)
+                        {
+                            Debug.LogWarning("[PlayerInteract] 열쇠가 없어 이 버튼을 작동할 수 없습니다!");
+                            return; 
+                        }
+
                         DoorCellOpen door = hit.collider.GetComponentInParent<DoorCellOpen>();
                         if (door != null)
                         {
@@ -85,7 +109,6 @@ namespace MyFPS
                         if (button != null)
                         {
                             button.Interact();
-                            // 상호작용 후 즉시 상태 갱신
                             UpdateButtonUI(button.IsOn);
                         }
                     }
@@ -95,6 +118,7 @@ namespace MyFPS
                 {
                     SetInteractionUIActive(false);
                     DeactivateButtonUI();
+                    if (lockedUI != null) lockedUI.gameObject.SetActive(false);
                     ActiveGunUI(true);
                     ActiveAmmoUI(false);
 
@@ -113,6 +137,7 @@ namespace MyFPS
                 {
                     SetInteractionUIActive(false);
                     DeactivateButtonUI();
+                    if (lockedUI != null) lockedUI.gameObject.SetActive(false);
                     ActiveGunUI(false);
                     ActiveAmmoUI(true);
 
@@ -129,15 +154,14 @@ namespace MyFPS
             }
             else
             {
-                // 아무것도 감지되지 않았을 때 모든 UI 비활성화
                 SetInteractionUIActive(false);
                 ActiveGunUI(false);
                 ActiveAmmoUI(false);
                 DeactivateButtonUI();
+                if (lockedUI != null) lockedUI.gameObject.SetActive(false); 
             }
         }
 
-        // 버튼 상태에 따른 UI 갱신 헬퍼 함수
         private void UpdateButtonUI(bool isOn)
         {
             if (isOn)
@@ -152,7 +176,6 @@ namespace MyFPS
             }
         }
 
-        // 버튼 UI 일괄 비활성화 헬퍼 함수
         private void DeactivateButtonUI()
         {
             if (buttonOnUI != null) buttonOnUI.gameObject.SetActive(false);
