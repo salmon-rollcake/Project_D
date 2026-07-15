@@ -24,9 +24,11 @@ namespace MyFPS
         [SerializeField] private TextMeshProUGUI buttonOffUI; // Off 상태(기본 상태)일 때 보여줄 UI (예: "문 열기 [E]")
         [SerializeField] private TextMeshProUGUI buttonOnUI;  // On 상태(활성화 상태)일 때 보여줄 UI (예: "문 닫기 [E]")
         [SerializeField] private TextMeshProUGUI lockedUI;    // 열쇠가 없을 때 보여줄 UI (예: "열쇠가 필요합니다")
+        [SerializeField] private TextMeshProUGUI eyekeyUI;    // 눈알 열쇠 상호작용 시 보여줄 UI
 
         [Header("상태 변수")]
         public bool getKey = false; // 열쇠 획득 여부
+        public bool getEyeKey = false;
 
         void Start()
         {
@@ -38,6 +40,7 @@ namespace MyFPS
             // 시작할 때 모든 버튼 UI를 꺼둡니다.
             DeactivateButtonUI();
             if (lockedUI != null) lockedUI.gameObject.SetActive(false);
+            if (eyekeyUI != null) eyekeyUI.gameObject.SetActive(false);
         }
 
         void Update()

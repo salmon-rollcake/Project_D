@@ -58,7 +58,7 @@ namespace MyFPS
                     doorOpenSound.Play();
                 }
             }
-
+            /*
             // 디버그 로그 출력
             if (isOpen)
             {
@@ -68,6 +68,7 @@ namespace MyFPS
             {
                 Debug.Log("문이 닫히는 애니메이션을 재생합니다.");
             }
+            */
         }
     }
 }
