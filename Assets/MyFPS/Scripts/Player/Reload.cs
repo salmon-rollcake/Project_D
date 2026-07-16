@@ -9,7 +9,7 @@ namespace MyFPS
     public class Reload : MonoBehaviour
     {
         [Header("탄약 초기화 설정")]
-        [SerializeField] private int resetAmmoCount = 7;
+        [SerializeField] private int resetAmmoCount = 14;
 
         void Start()
         {

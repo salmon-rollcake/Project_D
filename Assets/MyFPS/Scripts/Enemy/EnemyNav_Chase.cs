@@ -99,21 +99,32 @@ namespace MyFPS
         }
 
         private void MoveTowardsPlayer()
-        {
-            SetState(1);
+{
+    SetState(1);
 
-            // NavMesh Agent 가동 및 목적지 설정
-            agent.isStopped = false;
-            agent.SetDestination(playerTarget.position);
+    agent.isStopped = false;
 
-            // 💡 팁: NavMeshAgent가 자체적으로 회전(Angular Speed)을 처리하므로, 
-            // 기존의 transform.position 이동 및 Slerp 회전 코드는 제거했습니다.
+    // 💡 변경 포인트: 플레이어의 위치가 베이크된 NavMesh 영역 내부인지 검사 및 보정
+    NavMeshHit hit;
+    // 플레이어 위치 기준 반경 2.0f 이내에서 가장 가까운 유효한 NavMesh 좌표를 찾습니다.
+    if (NavMesh.SamplePosition(playerTarget.position, out hit, 2.0f, NavMesh.AllAreas))
+    {
+        // 안전하게 보정된 좌표(hit.position)로 목적지를 설정합니다.
+        agent.SetDestination(hit.position);
+    }
+    else
+    {
+        // 만약 플레이어가 완전히 NavMesh 영역을 벗어났다면, 
+        // 억지로 쫓아가지 않고 그 자리에서 멈추거나 이전 목적지를 유지하도록 유도합니다.
+        agent.isStopped = true;
+        SetState(0);
+    }
 
-            if (attackTimer < attackInterval)
-            {
-                attackTimer += Time.deltaTime;
-            }
-        }
+    if (attackTimer < attackInterval)
+    {
+        attackTimer += Time.deltaTime;
+    }
+}
 
         private void AttemptAttack()
         {
