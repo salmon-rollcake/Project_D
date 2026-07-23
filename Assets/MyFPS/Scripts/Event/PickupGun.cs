@@ -83,8 +83,8 @@ namespace MyFPS
                 return;
             }
 
-            // 탄약을 주우면 7발 충전 (최대 탄수를 넘지 않도록 제한하려면 Mathf.Min 사용 가능)
-            gunShoot.ammoCount = Mathf.Min(gunShoot.ammoCount + 7, gunShoot.maxAmmo);
+            // 탄약을 주우면 14발 충전 (최대 탄수를 넘지 않도록 제한하려면 Mathf.Min 사용 가능)
+            gunShoot.ammoCount = Mathf.Min(gunShoot.ammoCount + 14, gunShoot.maxAmmo);
 
             // ★ 중요: 탄약 주웠을 때 애니메이터의 Ammo 파라미터도 같이 갱신!
             gunShoot.UpdateAnimatorAmmo();
